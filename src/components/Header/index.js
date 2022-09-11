@@ -72,7 +72,7 @@ class Header extends Component {
                     ? 'https://assets.ccbp.in/frontend/react-js/nxt-watch-logo-light-theme-img.png'
                     : 'https://assets.ccbp.in/frontend/react-js/nxt-watch-logo-dark-theme-img.png'
                 }
-                alt="website logo"
+                alt="nxt watch logo"
                 onClick={this.onClickLogo}
                 cursor="pointer"
               />
