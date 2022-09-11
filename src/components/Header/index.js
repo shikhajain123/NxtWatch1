@@ -77,7 +77,11 @@ class Header extends Component {
                 cursor="pointer"
               />
               <HeaderContentSmallContainer>
-                <ButtonElSmall onClick={onChangeTheme} color={`${color}`}>
+                <ButtonElSmall
+                  onClick={onChangeTheme}
+                  color={`${color}`}
+                  data-testid="theme"
+                >
                   {activeTheme === 'light' ? (
                     <BsMoon size={25} />
                   ) : (
@@ -131,6 +135,7 @@ class Header extends Component {
                   onClick={onChangeTheme}
                   color={color}
                   border="none"
+                  data-testid="theme"
                 >
                   {activeTheme === 'light' ? (
                     <BsMoon size={25} />
