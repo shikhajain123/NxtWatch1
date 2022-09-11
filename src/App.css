@@ -22,3 +22,23 @@ body {
 .main-frame-container {
   padding-top: 50px;
 }
+
+@media (min-width: 768px) {
+  body {
+    overflow: hidden;
+  }
+  .light {
+    background-color: #ffffff;
+  }
+  .dark {
+    background-color: #231f20;
+  }
+  .main-frame-container {
+    display: flex;
+    height: 100vh;
+  }
+  .content {
+    overflow: auto;
+    width: 100%;
+  }
+}

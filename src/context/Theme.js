@@ -4,7 +4,7 @@ const AppTheme = React.createContext({
   activeTheme: 'light',
   savedVideos: [],
   addSavedVideos: () => {},
-  onChangeTheme: () => {},
+  changeTheme: () => {},
 })
 
 export default AppTheme

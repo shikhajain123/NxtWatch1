@@ -15,8 +15,6 @@ import {
   Error,
 } from './styledComponents'
 
-import Home from '../Home'
-
 class Login extends Component {
   state = {
     username: '',

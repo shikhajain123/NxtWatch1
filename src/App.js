@@ -23,31 +23,64 @@ class App extends Component {
     savedVideos: [],
   }
 
+  changeTheme = activeTheme => {
+    this.setState({activeTheme})
+  }
+
+  addSavedVideos = async data => {
+    const {savedVideos} = this.state
+    if (savedVideos.length > 0) {
+      const checkSavedVideos = savedVideos.filter(
+        eachVideo => eachVideo.id === data.id,
+      )
+      if (checkSavedVideos.length === 0) {
+        await this.setState({savedVideos: [...savedVideos, data]})
+      }
+    } else {
+      await this.setState({savedVideos: [...savedVideos, data]})
+    }
+  }
+
   render() {
+    const {activeTheme, savedVideos} = this.state
+    const bgColor = activeTheme === 'light' ? 'light' : 'dark'
     return (
-      <>
-        <div className="app-container">
-          <Switch>
-            <Route exact path="/login" component={Login} />
-            <>
-              <Header />
-              <div className="main-frame-container">
-                <Navbar />
-                <div className="content">
-                  <Switch>
-                    <Route exact path="/" component={Home} />
-                    <Route exact path="/trending" component={Trending} />
-                    <Route exact path="/gaming" component={Gaming} />
-                    <Route exact path="/saved-videos" component={SavedVideos} />
-                    <Route exact path="/videos/:id" component={VideoCard} />
-                    <Route component={NotFound} />
-                  </Switch>
+      <AppTheme.Provider
+        value={{
+          activeTheme,
+          savedVideos,
+          addSavedVideos: this.addSavedVideos,
+          changeTheme: this.changeTheme,
+        }}
+      >
+        <>
+          <div className="app-container">
+            <Switch>
+              <Route exact path="/login" component={Login} />
+              <>
+                <Header />
+                <div className={`${bgColor} main-frame-container`}>
+                  <Navbar />
+                  <div className="content">
+                    <Switch>
+                      <Route exact path="/" component={Home} />
+                      <Route exact path="/trending" component={Trending} />
+                      <Route exact path="/gaming" component={Gaming} />
+                      <Route
+                        exact
+                        path="/saved-videos"
+                        component={SavedVideos}
+                      />
+                      <Route exact path="/videos/:id" component={VideoCard} />
+                      <Route component={NotFound} />
+                    </Switch>
+                  </div>
                 </div>
-              </div>
-            </>
-          </Switch>
-        </div>
-      </>
+              </>
+            </Switch>
+          </div>
+        </>
+      </AppTheme.Provider>
     )
   }
 }
