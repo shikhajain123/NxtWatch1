@@ -1,87 +1,110 @@
+import {Route, Switch, Redirect} from 'react-router-dom'
 import {Component} from 'react'
 
-import {Switch, Route} from 'react-router-dom'
-
-import AppTheme from './context/Theme'
-
-import Login from './components/Login'
+import ProtectedRoute from './components/ProtectedRoute'
 import Home from './components/Home'
-import Header from './components/Header'
-import Navbar from './components/Navbar'
+import Login from './components/Login'
 import Trending from './components/Trending'
 import Gaming from './components/Gaming'
+import VideoDetails from './components/VideoDetails'
 import SavedVideos from './components/SavedVideos'
-import VideoCard from './components/VideoCard'
 import NotFound from './components/NotFound'
+import SavedContext from './SavedContext/savedContext'
 
 import './App.css'
 
-// Replace your code here
 class App extends Component {
   state = {
-    activeTheme: 'light',
-    savedVideos: [],
+    isDarkTheme: false,
+    savedVideosList: [],
+    selectedOption: 'HOME',
+    likedVideoIdStatusList: [],
   }
 
-  changeTheme = activeTheme => {
-    this.setState({activeTheme})
+  changeTheme = () => {
+    this.setState(prevState => ({isDarkTheme: !prevState.isDarkTheme}))
   }
 
-  addSavedVideos = async data => {
-    const {savedVideos} = this.state
-    if (savedVideos.length > 0) {
-      const checkSavedVideos = savedVideos.filter(
-        eachVideo => eachVideo.id === data.id,
-      )
-      if (checkSavedVideos.length === 0) {
-        await this.setState({savedVideos: [...savedVideos, data]})
-      }
+  addSavedVideos = videoDetails => {
+    this.setState(prevState => ({
+      savedVideosList: [...prevState.savedVideosList, videoDetails],
+    }))
+  }
+
+  removeSavedVideos = videoDetails => {
+    const {id} = videoDetails
+    const savedVideosList = this.state
+    const updatedSavedVideosList = savedVideosList.filter(
+      eachVideo => eachVideo.id !== id,
+    )
+    this.setState({savedVideosList: updatedSavedVideosList})
+  }
+
+  changeOption = option => {
+    this.setState({selectedOption: option})
+  }
+
+  changeLikeStatus = (id, status) => {
+    const {likedVideoIdStatusList} = this.state
+    const videoIdObject = likedVideoIdStatusList.find(
+      eachItem => eachItem.id === id,
+    )
+    if (videoIdObject === undefined) {
+      this.setState(prevState => ({
+        likedVideoIdStatusList: [
+          ...prevState.likedVideoIdStatusList,
+          {id, status},
+        ],
+      }))
     } else {
-      await this.setState({savedVideos: [...savedVideos, data]})
+      this.setState(prevState => ({
+        likedVideoIdStatusList: prevState.likedVideoIdStatusList.map(
+          eachObj => {
+            if (eachObj.id === id) {
+              return {...eachObj, status}
+            }
+            return eachObj
+          },
+        ),
+      }))
     }
   }
 
   render() {
-    const {activeTheme, savedVideos} = this.state
-    const bgColor = activeTheme === 'light' ? 'light' : 'dark'
+    const {
+      isDarkTheme,
+      selectedOption,
+      savedVideosList,
+      likedVideoIdStatusList,
+    } = this.state
+
     return (
-      <AppTheme.Provider
+      <SavedContext.Provider
         value={{
-          activeTheme,
-          savedVideos,
-          addSavedVideos: this.addSavedVideos,
+          isDarkTheme,
+          savedVideosList,
+          selectedOption,
+          likedVideoIdStatusList,
           changeTheme: this.changeTheme,
+          addSavedVideos: this.addSavedVideos,
+          removeSavedVideos: this.removeSavedVideos,
+          changeOption: this.changeOption,
+          changeLikeStatus: this.changeLikeStatus,
         }}
       >
-        <>
-          <div className="app-container">
-            <Switch>
-              <Route exact path="/login" component={Login} />
-              <>
-                <Header />
-                <div className={`${bgColor} main-frame-container`}>
-                  <Navbar />
-                  <div className="content">
-                    <Switch>
-                      <Route exact path="/" component={Home} />
-                      <Route exact path="/trending" component={Trending} />
-                      <Route exact path="/gaming" component={Gaming} />
-                      <Route
-                        exact
-                        path="/saved-videos"
-                        component={SavedVideos}
-                      />
-                      <Route exact path="/videos/:id" component={VideoCard} />
-                      <Route component={NotFound} />
-                    </Switch>
-                  </div>
-                </div>
-              </>
-            </Switch>
-          </div>
-        </>
-      </AppTheme.Provider>
+        <Switch>
+          <Route exact path="/login" component={Login} />
+          <ProtectedRoute exact path="/" component={Home} />
+          <ProtectedRoute exact path="/trending" component={Trending} />
+          <ProtectedRoute exact path="/gaming" component={Gaming} />
+          <ProtectedRoute exact path="/videos/:id" component={VideoDetails} />
+          <ProtectedRoute exact path="/saved-videos" component={SavedVideos} />
+          <Route exact path="/not-found" component={NotFound} />
+          <Redirect to="not-found" />
+        </Switch>
+      </SavedContext.Provider>
     )
   }
 }
+
 export default App

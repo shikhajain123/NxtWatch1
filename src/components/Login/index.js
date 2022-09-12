@@ -1,63 +1,56 @@
 import {Component} from 'react'
-import Cookies from 'js-cookie'
-
 import {Redirect} from 'react-router-dom'
+import Cookies from 'js-cookie'
 
 import {
   LoginContainer,
-  ShadowContainer,
-  ImageEl,
-  LoginFormContainer,
-  LoginDivContainer,
-  LabelEl,
-  InputEl,
-  LoginButton,
-  Error,
+  FormContainer,
+  LoginLogo,
+  InputContainer,
+  Label,
+  Input,
+  CheckboxContainer,
+  CheckboxInput,
+  CheckboxLabel,
+  LoginBtn,
+  ErrMsg,
 } from './styledComponents'
 
 class Login extends Component {
   state = {
     username: '',
     password: '',
-    showSubmitError: false,
-    errorMsg: '',
-    visibility: false,
+    errMsg: '',
+    showSubmitErr: false,
+    showPassword: false,
+  }
+
+  onChangeUsername = event => {
+    this.setState({username: event.target.value})
+  }
+
+  onChangePassword = event => {
+    this.setState({password: event.target.value})
+  }
+
+  onChangeCheckbox = () => {
+    this.setState(prevState => ({showPassword: !prevState.showPassword}))
   }
 
   onSubmitSuccess = jwtToken => {
     const {history} = this.props
+
     Cookies.set('jwt_token', jwtToken, {
       expires: 30,
-      path: '/',
     })
     history.replace('/')
   }
 
-  showPassword = event => {
-    if (event.target.checked) {
-      this.setState({visibility: true})
-    } else {
-      this.setState({visibility: false})
-    }
+  onSubmitFailure = errMsg => {
+    this.setState({showSubmitErr: true, errMsg})
   }
 
-  onSubmitFailure = errorMsg => {
-    this.setState({showSubmitError: true, errorMsg})
-  }
-
-  onChangeUsername = event => {
-    this.setState({
-      username: event.target.value,
-    })
-  }
-
-  onChangePassword = event => {
-    this.setState({
-      password: event.target.value,
-    })
-  }
-
-  onSubmitLoginForm = async event => {
+  submitForm = async event => {
     event.preventDefault()
     const {username, password} = this.state
     const userDetails = {username, password}
@@ -66,7 +59,6 @@ class Login extends Component {
       method: 'POST',
       body: JSON.stringify(userDetails),
     }
-
     const response = await fetch(url, options)
     const data = await response.json()
     if (response.ok === true) {
@@ -76,60 +68,74 @@ class Login extends Component {
     }
   }
 
-  render() {
-    const {
-      username,
-      password,
-      visibility,
-      showSubmitError,
-      errorMsg,
-    } = this.state
+  renderUsername = () => {
+    const {username} = this.state
+    return (
+      <>
+        <Label htmlFor="username">USERNAME</Label>
+        <Input
+          type="text"
+          id="username"
+          placeholder="Username"
+          value={username}
+          onChange={this.onChangeUsername}
+        />
+      </>
+    )
+  }
 
-    const jwtToken = Cookies.get('jwt_token')
-    if (jwtToken !== undefined) {
+  renderPassword = () => {
+    const {password, showPassword} = this.state
+    return (
+      <>
+        <Label htmlFor="password">PASSWORD</Label>
+        <Input
+          type={showPassword ? 'text' : 'password'}
+          id="password"
+          placeholder="Password"
+          value={password}
+          onChange={this.onChangePassword}
+        />
+      </>
+    )
+  }
+
+  renderCheckbox = () => {
+    const {showPassword} = this.state
+    return (
+      <>
+        <CheckboxInput
+          type="checkbox"
+          id="checkbox"
+          onChange={this.onChangeCheckbox}
+          checked={showPassword}
+        />
+        <CheckboxLabel htmlFor="checkbox">Show Password</CheckboxLabel>
+      </>
+    )
+  }
+
+  render() {
+    const {showSubmitErr, errMsg} = this.state
+    const JwtToken = Cookies.get('jwt_token')
+
+    if (JwtToken !== undefined) {
       return <Redirect to="/" />
     }
 
     return (
       <LoginContainer>
-        <ShadowContainer>
-          <ImageEl
+        <FormContainer onSubmit={this.submitForm}>
+          <LoginLogo
             src="https://assets.ccbp.in/frontend/react-js/nxt-watch-logo-light-theme-img.png"
             alt="website logo"
           />
-          <LoginFormContainer onSubmit={this.onSubmitLoginForm}>
-            <LoginDivContainer>
-              <LabelEl>USERNAME</LabelEl>
-              <InputEl
-                value={username}
-                placeholder="Username"
-                type="text"
-                onChange={this.onChangeUsername}
-              />
-            </LoginDivContainer>
-            <LoginDivContainer>
-              <LabelEl>PASSWORD</LabelEl>
-              <InputEl
-                value={password}
-                placeholder="Password"
-                type={visibility ? 'text' : 'password'}
-                onChange={this.onChangePassword}
-              />
-            </LoginDivContainer>
-            <LoginDivContainer direction="row">
-              <InputEl
-                id="checkbox"
-                type="checkbox"
-                onChange={this.showPassword}
-              />
-              <LabelEl htmlFor="checkbox" cursor="pointer">
-                Show Password
-              </LabelEl>
-            </LoginDivContainer>
-            <LoginButton type="submit">Login</LoginButton>
-            {showSubmitError ? <Error>*{errorMsg}</Error> : ''}
-          </LoginFormContainer>
-        </ShadowContainer>
+          <InputContainer>{this.renderUsername()}</InputContainer>
+          <InputContainer>{this.renderPassword()}</InputContainer>
+          <CheckboxContainer>{this.renderCheckbox()}</CheckboxContainer>
+          <LoginBtn type="submit">Login</LoginBtn>
+          {showSubmitErr ? <ErrMsg>* {errMsg}</ErrMsg> : ''}
+        </FormContainer>
       </LoginContainer>
     )
   }
