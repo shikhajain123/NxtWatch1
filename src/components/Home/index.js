@@ -37,6 +37,54 @@ class Home extends Component {
     search: '',
   }
 
+  componentDidMount() {
+    this.getVideosList()
+  }
+
+  getVideosList = async () => {
+    const {search} = this.state
+    const jwtToken = Cookies.get('jwt_token')
+    const url = `https://apis.ccbp.in/videos/all?search=${search}`
+    const options = {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    }
+    const response = await fetch(url, options)
+    if (response.ok) {
+      const data = await response.json()
+      console.log(data)
+      const updatedData = data.videos.map(eachVideo => ({
+        channel: {
+          name: eachVideo.channel.name,
+          profileImageUrl: eachVideo.channel.profile_image_url,
+        },
+        id: eachVideo.id,
+        publishedAt: eachVideo.published_at,
+        thumbnailUrl: eachVideo.thumbnail_url,
+        title: eachVideo.title,
+        viewCount: eachVideo.view_count,
+      }))
+      this.setState({videosList: updatedData, isLoading: status.success})
+    } else {
+      this.setState({isLoading: status.failure})
+    }
+  }
+
+  onChangeSearch = event => {
+    this.setState({search: event.target.value})
+  }
+
+  onClickSearch = () => {
+    this.setState({isLoading: status.loading}, this.getVideosList)
+  }
+
+  closeBanner = () => {
+    this.setState({isBannerClosed: true})
+  }
+
   render() {
     const {isBannerClosed, isLoading, videosList, search} = this.state
 
@@ -44,11 +92,113 @@ class Home extends Component {
       <SavedContext.Consumer>
         {value => {
           const {isDarkTheme} = value
+
+          const renderSearchInput = () => (
+            <>
+              <SearchContainer isDarkTheme={isDarkTheme}>
+                <SearchInput
+                  type="search"
+                  value={search}
+                  placeholder="Search"
+                  isDarkTheme={isDarkTheme}
+                  onChange={this.onChangeSearch}
+                />
+                <SearchBtn
+                  type="button"
+                  isDarkTheme={isDarkTheme}
+                  onClick={this.onClickSearch}
+                  data-testid="searchButton"
+                >
+                  <AiOutlineSearch size={20} />
+                </SearchBtn>
+              </SearchContainer>
+            </>
+          )
+
+          const renderFailureView = () => (
+            <LoaderContainer>
+              <FailureImg
+                src={
+                  isDarkTheme
+                    ? 'https://assets.ccbp.in/frontend/react-js/nxt-watch-failure-view-dark-theme-img.png'
+                    : 'https://assets.ccbp.in/frontend/react-js/nxt-watch-failure-view-light-theme-img.png'
+                }
+                alt="failure view"
+              />
+              <FailureHead>Oops! Something Went Wrong</FailureHead>
+              <FailureDes>
+                We are having some trouble to complete your request. Please try
+                again.
+              </FailureDes>
+              <FailRetryBtn type="button" onClick={this.onClickSearch}>
+                Retry
+              </FailRetryBtn>
+            </LoaderContainer>
+          )
+
+          const renderNoVideosView = () => (
+            <LoaderContainer>
+              <FailureImg
+                src="https://assets.ccbp.in/frontend/react-js/nxt-watch-no-search-results-img.png"
+                alt="no videos"
+              />
+              <FailureHead>No Search results found</FailureHead>
+              <FailureDes>
+                Try different keywords or remove search filter
+              </FailureDes>
+              <FailRetryBtn type="button" onClick={this.onClickSearch}>
+                Retry
+              </FailRetryBtn>
+            </LoaderContainer>
+          )
+
+          const renderVideosList = () => {
+            if (videosList.length === 0) {
+              return renderNoVideosView()
+            }
+            return (
+              <VideosList>
+                {videosList.map(eachVideo => (
+                  <HomeVideoCard videoCard={eachVideo} key={eachVideo.id} />
+                ))}
+              </VideosList>
+            )
+          }
+
+          const renderHomePage = () =>
+            isLoading === status.success
+              ? renderVideosList()
+              : renderFailureView()
+
+          const renderLoader = () => (
+            <LoaderContainer data-testid="loader">
+              <Loader
+                type="ThreeDots"
+                color={isDarkTheme ? '#ffffff' : '#3b82f6'}
+                width="50"
+                height="50"
+              />
+            </LoaderContainer>
+          )
+
           return (
             <>
               <Header />
-              <HomeContainer>
+              <HomeContainer isDarkTheme={isDarkTheme} data-testid="home">
                 <SideMenu />
+                <HomeBannerContainer>
+                  {isBannerClosed ? (
+                    ''
+                  ) : (
+                    <PremiumBanner closeBanner={this.closeBanner} />
+                  )}
+                  <VideosContainer>
+                    {renderSearchInput()}
+                    {isLoading === status.loading
+                      ? renderLoader()
+                      : renderHomePage()}
+                  </VideosContainer>
+                </HomeBannerContainer>
               </HomeContainer>
             </>
           )
