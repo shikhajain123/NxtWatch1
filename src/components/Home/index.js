@@ -30,14 +30,30 @@ const status = {
 }
 
 class Home extends Component {
+  state = {
+    isBannerClosed: false,
+    isLoading: status.loading,
+    videosList: [],
+    search: '',
+  }
+
   render() {
+    const {isBannerClosed, isLoading, videosList, search} = this.state
+
     return (
-      <>
-        <Header />
-        <HomeContainer>
-          <SideMenu />
-        </HomeContainer>
-      </>
+      <SavedContext.Consumer>
+        {value => {
+          const {isDarkTheme} = value
+          return (
+            <>
+              <Header />
+              <HomeContainer>
+                <SideMenu />
+              </HomeContainer>
+            </>
+          )
+        }}
+      </SavedContext.Consumer>
     )
   }
 }
