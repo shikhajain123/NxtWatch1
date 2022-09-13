@@ -46,8 +46,6 @@ class Gaming extends Component {
     const options = {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
         Authorization: `Bearer ${jwtToken}`,
       },
     }
