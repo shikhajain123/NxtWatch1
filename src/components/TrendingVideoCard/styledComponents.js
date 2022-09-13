@@ -3,23 +3,22 @@ import {Link} from 'react-router-dom'
 
 export const LinkTo = styled(Link)`
   text-decoration: none;
+  width: 100%;
 `
 
 export const VideosItem = styled.li`
-  width: 250px;
-  min-height: 300px;
-  margin: 12px 16px 16px 0;
+  display: flex;
+  margin-bottom: 65px;
   list-style-type: none;
 `
 
 export const VideoImg = styled.img`
-  width: 100%;
+  width: 40%;
   margin-bottom: 10px;
 `
 
 export const VideoCardContainer = styled.div`
-  display: flex;
-  margin-right: 6px;
+  padding: 10px 18px;
 `
 
 export const VideoImage = styled.img`
@@ -31,10 +30,10 @@ export const VideoImage = styled.img`
 
 export const VideoCard = styled.div``
 
-export const VideoCardTitle = styled.p`
+export const VideoCardTitle = styled.h1`
   color: ${props => (props.isDarkTheme ? '#ebebeb' : '#1e293b')};
-  font-size: 14px;
-  font-weight: ${props => (props.isDarkTheme ? '400' : '500')};
+  font-size: 25px;
+  font-weight: ${props => (props.isDarkTheme ? '600' : '700')};
   line-height: 1.7;
   margin: 0;
 `

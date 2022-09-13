@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const HomeContainer = styled.div`
+export const TrendingContainer = styled.div`
   display: flex;
   min-height: 85vh;
   background-color: ${props => (props.isDarkTheme ? '#0f0f0f' : '#f9f9f9')};
@@ -8,45 +8,40 @@ export const HomeContainer = styled.div`
   font-family: 'Roboto';
 `
 
-export const HomeBannerContainer = styled.div`
-  height: 90vh;
-  flex: 1;
-  overflow-y: auto;
+export const TrendingTopContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 24px 0px 24px 48px;
+  background-color: ${props => (props.isDarkTheme ? '#212121' : '#ebebeb')};
+`
+
+export const TrendingIconContainer = styled.div`
+  padding: 20px;
+  border-radius: 35px;
+  color: #ff0000;
+  background-color: ${props => (props.isDarkTheme ? '#0f0f0f' : '#d7dfe9')};
+  margin-right: 18px;
+`
+
+export const TrendingHead = styled.h1`
+  font-size: 30px;
+  font-family: 'Roboto';
+  font-weight: bold;
+  color: ${props => (props.isDarkTheme ? '#ebebeb' : '#212121')};
+`
+
+export const TrendingVideosList = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 32px 24px 24px 48px;
+  margin: 0;
 `
 
 export const VideosContainer = styled.div`
   padding: 15px;
   height: 70%;
-`
-
-export const SearchContainer = styled.div`
-  display: flex;
-  align-items: center;
-  border: 1px solid ${props => (props.isDarkTheme ? '#424242' : '#cbd5e1')};
-  width: 450px;
-  margin-left: 40px;
-`
-
-export const SearchInput = styled.input`
-  color: #1e293b;
-  background-color: ${props => (props.isDarkTheme ? 'transparent' : '#ffffff')};
-  font-size: 16px;
-  height: 32px;
-  width: 380px;
-  border-right: 1px solid
-    ${props => (props.isDarkTheme ? '#424242' : '#cbd5e1')};
-  padding: 15px;
-  border: none;
-  outline: none;
-`
-
-export const SearchBtn = styled.button`
-  color: #909090;
-  background-color: ${props => (props.isDarkTheme ? '#313131' : '#f4f4f4')};
-  font-size: 12px;
-  height: 32px;
-  width: 70px;
-  border: none;
 `
 
 export const LoaderContainer = styled.div`
@@ -89,4 +84,9 @@ export const VideosList = styled.ul`
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+`
+export const TrendingVideosListContainer = styled.div`
+  flex-grow: 1;
+  height: 85vh;
+  overflow-y: auto;
 `

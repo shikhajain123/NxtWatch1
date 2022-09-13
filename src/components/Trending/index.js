@@ -1,20 +1,20 @@
 import {Component} from 'react'
 import Cookies from 'js-cookie'
 import Loader from 'react-loader-spinner'
-import {AiOutlineSearch} from 'react-icons/ai'
+import {HiFire} from 'react-icons/hi'
 import Header from '../Header'
 import SideMenu from '../SideMenu'
-import PremiumBanner from '../PremiumBanner'
+
 import TrendingVideoCard from '../TrendingVideoCard'
 import SavedContext from '../../SavedContext/savedContext'
 
 import {
-  HomeContainer,
-  HomeBannerContainer,
-  VideosContainer,
-  SearchContainer,
-  SearchInput,
-  SearchBtn,
+  TrendingContainer,
+  TrendingTopContainer,
+  TrendingIconContainer,
+  TrendingVideosListContainer,
+  TrendingHead,
+  TrendingVideosList,
   LoaderContainer,
   FailureImg,
   FailureHead,
@@ -31,10 +31,8 @@ const status = {
 
 class Trending extends Component {
   state = {
-    isBannerClosed: false,
     isLoading: status.loading,
     videosList: [],
-    search: '',
   }
 
   componentDidMount() {
@@ -72,46 +70,37 @@ class Trending extends Component {
     }
   }
 
-  onChangeSearch = event => {
-    this.setState({search: event.target.value})
-  }
-
-  onClickSearch = () => {
+  onClickRetryBtn = () => {
     this.setState({isLoading: status.loading}, this.getVideosList)
   }
 
-  closeBanner = () => {
-    this.setState({isBannerClosed: true})
-  }
-
   render() {
-    const {isBannerClosed, isLoading, videosList, search} = this.state
+    const {isLoading, videosList} = this.state
 
     return (
       <SavedContext.Consumer>
         {value => {
           const {isDarkTheme} = value
 
-          const renderSearchInput = () => (
-            <>
-              <SearchContainer isDarkTheme={isDarkTheme}>
-                <SearchInput
-                  type="search"
-                  value={search}
-                  placeholder="Search"
+          const renderTrending = () => (
+            <TrendingTopContainer isDarkTheme={isDarkTheme}>
+              <TrendingIconContainer isDarkTheme={isDarkTheme}>
+                <HiFire size={25} />
+              </TrendingIconContainer>
+              <TrendingHead isDarkTheme={isDarkTheme}>Trending</TrendingHead>
+            </TrendingTopContainer>
+          )
+
+          const renderVideosList = () => (
+            <TrendingVideosList>
+              {videosList.map(eachVideo => (
+                <TrendingVideoCard
+                  key={eachVideo.id}
+                  videoCard={eachVideo}
                   isDarkTheme={isDarkTheme}
-                  onChange={this.onChangeSearch}
                 />
-                <SearchBtn
-                  type="button"
-                  isDarkTheme={isDarkTheme}
-                  onClick={this.onClickSearch}
-                  data-testid="searchButton"
-                >
-                  <AiOutlineSearch size={20} />
-                </SearchBtn>
-              </SearchContainer>
-            </>
+              ))}
+            </TrendingVideosList>
           )
 
           const renderFailureView = () => (
@@ -129,44 +118,22 @@ class Trending extends Component {
                 We are having some trouble to complete your request. Please try
                 again.
               </FailureDes>
-              <FailRetryBtn type="button" onClick={this.onClickSearch}>
+              <FailRetryBtn type="button" onClick={this.onClickRetryBtn}>
                 Retry
               </FailRetryBtn>
             </LoaderContainer>
           )
 
-          const renderNoVideosView = () => (
-            <LoaderContainer>
-              <FailureImg
-                src="https://assets.ccbp.in/frontend/react-js/nxt-watch-no-search-results-img.png"
-                alt="no videos"
-              />
-              <FailureHead>No Search results found</FailureHead>
-              <FailureDes>
-                Try different keywords or remove search filter
-              </FailureDes>
-              <FailRetryBtn type="button" onClick={this.onClickSearch}>
-                Retry
-              </FailRetryBtn>
-            </LoaderContainer>
+          const renderTrendingVideosList = () => (
+            <TrendingVideosListContainer>
+              {renderTrending()}
+              {renderVideosList()}
+            </TrendingVideosListContainer>
           )
 
-          const renderVideosList = () => {
-            if (videosList.length === 0) {
-              return renderNoVideosView()
-            }
-            return (
-              <VideosList>
-                {videosList.map(eachVideo => (
-                  <TrendingVideoCard videoCard={eachVideo} key={eachVideo.id} />
-                ))}
-              </VideosList>
-            )
-          }
-
-          const renderHomePage = () =>
+          const renderTrendingVideos = () =>
             isLoading === status.success
-              ? renderVideosList()
+              ? renderTrendingVideosList()
               : renderFailureView()
 
           const renderLoader = () => (
@@ -183,22 +150,15 @@ class Trending extends Component {
           return (
             <>
               <Header />
-              <HomeContainer isDarkTheme={isDarkTheme} data-testid="trending">
+              <TrendingContainer
+                isDarkTheme={isDarkTheme}
+                data-testid="trending"
+              >
                 <SideMenu />
-                <HomeBannerContainer>
-                  {isBannerClosed ? (
-                    ''
-                  ) : (
-                    <PremiumBanner closeBanner={this.closeBanner} />
-                  )}
-                  <VideosContainer>
-                    {renderSearchInput()}
-                    {isLoading === status.loading
-                      ? renderLoader()
-                      : renderHomePage()}
-                  </VideosContainer>
-                </HomeBannerContainer>
-              </HomeContainer>
+                {isLoading === status.loading
+                  ? renderLoader()
+                  : renderTrendingVideos()}
+              </TrendingContainer>
             </>
           )
         }}

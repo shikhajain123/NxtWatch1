@@ -7,7 +7,6 @@ import {
   VideosItem,
   VideoImg,
   VideoCardContainer,
-  VideoImage,
   VideoCard,
   VideoCardTitle,
   VideoCardChannel,
@@ -32,16 +31,13 @@ const TrendingVideoCard = props => {
             <VideosItem>
               <VideoImg src={thumbnailUrl} alt="video thumbnail" />
               <VideoCardContainer>
-                <VideoImage src={channel.profileImageUrl} alt="channel logo" />
-                <VideoCard>
-                  <VideoCardTitle isDarkTheme={isDarkTheme}>
-                    {title}
-                  </VideoCardTitle>
-                  <VideoCardChannel>{channel.name}</VideoCardChannel>
-                  <VideoCardChannel>
-                    {viewCount} views . {getTime()} ago
-                  </VideoCardChannel>
-                </VideoCard>
+                <VideoCardTitle isDarkTheme={isDarkTheme}>
+                  {title}
+                </VideoCardTitle>
+                <VideoCardChannel>{channel.name}</VideoCardChannel>
+                <VideoCardChannel>
+                  {viewCount} views . {getTime()} ago
+                </VideoCardChannel>
               </VideoCardContainer>
             </VideosItem>
           </LinkTo>
