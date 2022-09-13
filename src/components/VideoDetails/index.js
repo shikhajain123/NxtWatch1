@@ -1,5 +1,7 @@
 import {Component} from 'react'
 import {formatDistanceToNow} from 'date-fns'
+import {BiLike, BiDislike} from 'react-icons/bi'
+import {MdPlaylistAdd} from 'react-icons/md'
 import Cookies from 'js-cookie'
 import Loader from 'react-loader-spinner'
 import Header from '../Header'
@@ -18,6 +20,20 @@ import {
   FailRetryBtn,
   VideoDetailsContainer,
   VideoDescription,
+  VideoLikesContainer,
+  ViewsCount,
+  LikesContainer,
+  UserIconContainer,
+  LikeButton,
+  DislikeButton,
+  UserActionButton,
+  HorizontalLine,
+  ChannelContainer,
+  ChannelImg,
+  ChannelDes,
+  ChannelNameContainer,
+  ChannelSubscriber,
+  ChannelName,
 } from './styledComponents'
 
 const status = {
@@ -72,6 +88,15 @@ class VideoDetails extends Component {
     }
   }
 
+  changeSavedStatus = () => {
+    this.setState(prevState => ({
+      videoDetails: {
+        ...prevState.videoDetails,
+        isSaved: !prevState.videoDetails.isSaved,
+      },
+    }))
+  }
+
   render() {
     const {isLoading, videoDetails} = this.state
     const {
@@ -108,16 +133,124 @@ class VideoDetails extends Component {
             </LoaderContainer>
           )
 
+          const getTime = () => {
+            const formattedDate = formatDistanceToNow(new Date(publishedAt))
+            return formattedDate
+          }
+
           const renderVideoPlayer = () => (
-            <ReactPlayerE controls url={videoUrl} height="60vh" />
+            <ReactPlayerE controls url={videoUrl} width="100%" height="55vh" />
           )
+
+          const isVideoSaved = () => {
+            const videoSaved = savedVideosList.find(
+              eachVideo => eachVideo.id === id,
+            )
+            if (videoSaved === undefined) {
+              return false
+            }
+            return true
+          }
+
+          const getVIdeoLikeStatus = () => {
+            const videoObject = likedVideoIdStatusList.find(
+              eachItem => eachItem.id === id,
+            )
+            if (videoObject === undefined) {
+              return 'NONE'
+            }
+            return videoObject.status
+          }
+
+          const isSaved = isVideoSaved()
+          const likeStatus = getVIdeoLikeStatus()
+
+          const onClickLike = () => {
+            if (likeStatus === 'LIKE') {
+              changeLikeStatus(id, 'NONE')
+            } else {
+              changeLikeStatus(id, 'LIKE')
+            }
+          }
+
+          const onClickDislike = () => {
+            if (likeStatus === 'DISLIKE') {
+              changeLikeStatus(id, 'NONE')
+            } else {
+              changeLikeStatus(id, 'DISLIKE')
+            }
+          }
+
+          const onClickSave = () => {
+            if (isSaved === false) {
+              addSavedVideos(videoDetails)
+            } else {
+              removedSavedVideos(videoDetails)
+            }
+          }
+
+          const onClickRetryBtn = () => {
+            this.setState({isLoading: status.loading}, this.getVideoDetails)
+          }
 
           const renderVideoDetails = () => (
             <>
               <VideoDescription isDarkTheme={isDarkTheme}>
                 {title}
               </VideoDescription>
+              <VideoLikesContainer>
+                <ViewsCount>
+                  {viewCount} views . {getTime()}
+                </ViewsCount>
+                <LikesContainer>
+                  <LikeButton
+                    type="button"
+                    onClick={onClickLike}
+                    likeStatus={likeStatus}
+                  >
+                    <UserIconContainer>
+                      <BiLike />
+                    </UserIconContainer>{' '}
+                    Like
+                  </LikeButton>
+                  <DislikeButton
+                    type="button"
+                    onClick={onClickDislike}
+                    likeStatus={likeStatus}
+                  >
+                    <UserIconContainer>
+                      <BiDislike />
+                    </UserIconContainer>{' '}
+                    Like
+                  </DislikeButton>
+                  <UserActionButton
+                    type="button"
+                    isSaved={isSaved}
+                    onClick={onClickSave}
+                  >
+                    <UserIconContainer>
+                      <MdPlaylistAdd />
+                    </UserIconContainer>{' '}
+                    {isSaved ? 'saved' : 'save'}
+                  </UserActionButton>
+                </LikesContainer>
+              </VideoLikesContainer>
             </>
+          )
+
+          const renderChannelDetails = () => (
+            <ChannelContainer>
+              <ChannelImg src={channel.profileImageUrl} alt="channel logo" />
+              <ChannelNameContainer>
+                <ChannelName isDarkTheme={isDarkTheme}>
+                  {channel.name}
+                </ChannelName>
+                <ChannelSubscriber>
+                  {channel.subscriberCount} subscribers
+                </ChannelSubscriber>
+                <ChannelDes isDarkTheme={isDarkTheme}>{description}</ChannelDes>
+              </ChannelNameContainer>
+            </ChannelContainer>
           )
 
           const renderVideoDetailsFailureView = () => (
@@ -135,7 +268,7 @@ class VideoDetails extends Component {
                 We are having some trouble to complete your request. Please try
                 again.
               </FailureDes>
-              <FailRetryBtn type="button" onClick={this.onClickRetryBtn}>
+              <FailRetryBtn type="button" onClick={onClickRetryBtn}>
                 Retry
               </FailRetryBtn>
             </LoaderContainer>
@@ -146,6 +279,8 @@ class VideoDetails extends Component {
               <VideoDetailsViewContainer>
                 {renderVideoPlayer()}
                 {renderVideoDetails()}
+                <HorizontalLine />
+                {renderChannelDetails()}
               </VideoDetailsViewContainer>
             ) : (
               renderVideoDetailsFailureView()
@@ -154,7 +289,10 @@ class VideoDetails extends Component {
           return (
             <>
               <Header />
-              <TrendingContainer isDarkTheme={isDarkTheme} data-testid="">
+              <TrendingContainer
+                isDarkTheme={isDarkTheme}
+                data-testid="videoItemDetails"
+              >
                 <SideMenu />
                 <VideoPlayerContainer>
                   {isLoading === status.loading
