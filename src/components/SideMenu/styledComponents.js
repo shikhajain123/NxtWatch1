@@ -54,7 +54,7 @@ export const FooterContainer = styled.div`
   margin-left: 15px;
 `
 
-export const FooterHead = styled.h1`
+export const FooterHead = styled.p`
   color: ${props => (props.isDarkTheme ? '#ffffff' : '#1e293b')};
   font-size: 20px;
   font-weight: 600;

@@ -231,7 +231,7 @@ class VideoDetails extends Component {
                     <UserIconContainer>
                       <MdPlaylistAdd />
                     </UserIconContainer>{' '}
-                    {isSaved ? 'saved' : 'save'}
+                    {isSaved ? 'Saved' : 'Save'}
                   </UserActionButton>
                 </LikesContainer>
               </VideoLikesContainer>
