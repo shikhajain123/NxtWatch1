@@ -1,149 +1,86 @@
-import {Component} from 'react'
-import Cookies from 'js-cookie'
-import Loader from 'react-loader-spinner'
-import {HiFire} from 'react-icons/hi'
+import {MdPlaylistAdd} from 'react-icons/md'
+
 import Header from '../Header'
 import SideMenu from '../SideMenu'
+import TrendingVideoCard from '../TrendingVideoCard'
 
-import SavedVideoCard from '../SavedVideoCard'
 import SavedContext from '../../SavedContext/savedContext'
 
 import {
-  TrendingContainer,
-  TrendingTopContainer,
-  TrendingIconContainer,
-  TrendingVideosListContainer,
-  TrendingHead,
-  TrendingVideosList,
+  SavedVideosContainer,
+  SavedVideosListContainer,
+  SavedVideosTopContainer,
+  SavedVideosIconContainer,
+  SavedVideosHeading,
   LoaderContainer,
   FailureImg,
-  FailureHead,
+  FailureText,
   FailureDes,
-  FailRetryBtn,
-  VideosList,
-  SavedVideoContainer,
+  SavedVideosList,
 } from './styledComponents'
 
-const status = {
-  loading: 'LOADING',
-  success: 'SUCCESS',
-  failure: 'FAILURE',
-}
+const SavedVideos = () => (
+  <SavedContext.Consumer>
+    {value => {
+      const {isDarkTheme, savedVideosList} = value
 
-class SavedVideos extends Component {
-  state = {
-    isLoading: status.loading,
-    videosList: [],
-  }
+      const renderSavedVideosHeading = () => (
+        <SavedVideosTopContainer isDarkTheme={isDarkTheme}>
+          <SavedVideosIconContainer isDarkTheme={isDarkTheme}>
+            <MdPlaylistAdd />
+          </SavedVideosIconContainer>
+          <SavedVideosHeading isDarkTheme={isDarkTheme}>
+            Saved Videos
+          </SavedVideosHeading>
+        </SavedVideosTopContainer>
+      )
 
-  componentDidMount() {
-    this.getVideosList()
-  }
+      const renderFailureView = () => (
+        <LoaderContainer isDarkTheme={isDarkTheme}>
+          <FailureImg
+            src="https://assets.ccbp.in/frontend/react-js/nxt-watch-no-saved-videos-img.png"
+            alt="no saved videos"
+          />
+          <FailureText isDarkTheme={isDarkTheme}>
+            No saved videos found
+          </FailureText>
+          <FailureDes>You can save your videos while watching them</FailureDes>
+        </LoaderContainer>
+      )
 
-  getVideosList = async () => {
-    const jwtToken = Cookies.get('jwt_token')
-    const url = `https://apis.ccbp.in/videos/trending`
-    const options = {
-      method: 'GET',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    }
-    const response = await fetch(url, options)
-    if (response.ok) {
-      const data = await response.json()
-      console.log(data)
-      const updatedData = data.videos.map(eachVideo => ({
-        channel: {
-          name: eachVideo.channel.name,
-          profileImageUrl: eachVideo.channel.profile_image_url,
-        },
-        id: eachVideo.id,
-        publishedAt: eachVideo.published_at,
-        thumbnailUrl: eachVideo.thumbnail_url,
-        title: eachVideo.title,
-        viewCount: eachVideo.view_count,
-      }))
-      this.setState({videosList: updatedData, isLoading: status.success})
-    } else {
-      this.setState({isLoading: status.failure})
-    }
-  }
+      const renderVideosList = () => (
+        <SavedVideosList>
+          {savedVideosList.map(eachItem => (
+            <TrendingVideoCard
+              key={eachItem.id}
+              videoCard={eachItem}
+              isDarkTheme={isDarkTheme}
+            />
+          ))}
+        </SavedVideosList>
+      )
 
-  onClickRetryBtn = () => {
-    this.setState({isLoading: status.loading}, this.getVideosList)
-  }
-
-  render() {
-    const {isLoading, videosList} = this.state
-
-    return (
-      <SavedContext.Consumer>
-        {value => {
-          const {isDarkTheme, savedVideosList} = value
-
-          const renderTrending = () => (
-            <TrendingTopContainer isDarkTheme={isDarkTheme}>
-              <TrendingIconContainer isDarkTheme={isDarkTheme}>
-                <HiFire size={25} />
-              </TrendingIconContainer>
-              <TrendingHead isDarkTheme={isDarkTheme}>
-                Saved Videos
-              </TrendingHead>
-            </TrendingTopContainer>
-          )
-
-          const renderVideosList = () => (
-            <TrendingVideosList>
-              {savedVideosList.map(eachVideo => (
-                <SavedVideoCard
-                  key={eachVideo.id}
-                  videoCard={eachVideo}
-                  isDarkTheme={isDarkTheme}
-                />
-              ))}
-            </TrendingVideosList>
-          )
-
-          const renderFailureView = () => (
-            <SavedVideoContainer>
-              <FailureImg
-                src="https://assets.ccbp.in/frontend/react-js/nxt-watch-no-saved-videos-img.png "
-                alt="no saved videos"
-              />
-              <FailureHead>No saved videos found</FailureHead>
-              <FailureDes>
-                You can save your videos while watching them
-              </FailureDes>
-            </SavedVideoContainer>
-          )
-
-          const renderTrendingVideosList = () => (
-            <TrendingVideosListContainer>
-              {renderTrending()}
-              {renderVideosList()}
-            </TrendingVideosListContainer>
-          )
-
-          return (
-            <>
-              <Header />
-              <TrendingContainer
-                isDarkTheme={isDarkTheme}
-                data-testid="savedVideos"
-              >
-                <SideMenu />
-                {savedVideosList.length === 0
-                  ? renderFailureView()
-                  : renderTrendingVideosList()}
-              </TrendingContainer>
-            </>
-          )
-        }}
-      </SavedContext.Consumer>
-    )
-  }
-}
+      return (
+        <>
+          <Header />
+          <SavedVideosContainer
+            isDarkTheme={isDarkTheme}
+            data-testid="savedVideos"
+          >
+            <SideMenu />
+            {savedVideosList.length === 0 ? (
+              renderFailureView()
+            ) : (
+              <SavedVideosListContainer>
+                {renderSavedVideosHeading()}
+                {renderVideosList()}
+              </SavedVideosListContainer>
+            )}
+          </SavedVideosContainer>
+        </>
+      )
+    }}
+  </SavedContext.Consumer>
+)
 
 export default SavedVideos
